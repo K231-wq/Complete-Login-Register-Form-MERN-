@@ -5,8 +5,10 @@ const expres = require('express');
 const app = expres();
 
 const connectDB = require('./db/connect');
+const authenticationMiddleware = require('./middleware/Authentication');
 
 const UserControllerRoutes = require('./routes/User');
+const PageControllerRoutes = require('./routes/page');
 
 const errorHandlerMiddleware = require('./middleware/error_handler');
 const notFoundMiddleware = require('./middleware/not-found');
@@ -18,6 +20,7 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/v1", UserControllerRoutes);
+app.use("/api/v1/page", authenticationMiddleware, PageControllerRoutes);
 
 app.use(errorHandlerMiddleware);
 app.use(notFoundMiddleware);

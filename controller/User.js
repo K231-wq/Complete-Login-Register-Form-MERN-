@@ -34,12 +34,10 @@ const login = async (req, res) => {
         throw new NotFoundError("EMAIL ISN'T FOUND IN DB, PLEASE REGISTER AN ACCOUNT!!");
     }
     const isMatch = await user.comparePassword(password);
-    console.log("Password: " + isMatch);
     if (!isMatch) {
         throw new BadRequestError("PASSWORD ISN'T CORRECT. RE-ENTER PASSWORD AFAIN!");
     }
     const token = await user.createJWT();
-    console.log(token);
     res.status(StatusCodes.OK).json({
         user: {
             name: user.name,
