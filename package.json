@@ -1,0 +1,26 @@
+{
+  "name": "login-register-form",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "start app.js",
+    "dev": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.6.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "http-status-codes": "^2.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongo": "^0.1.0",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.16.3"
+  }
+}
