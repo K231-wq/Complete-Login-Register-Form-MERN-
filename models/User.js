@@ -23,6 +23,26 @@ const UserSchema = new mongoose.Schema({
         required: [true, "Password must be provided!!"],
         minLength: 3,
         maxLength: 256
+    },
+    verifyOtp: {
+        type: String,
+        default: '',
+    },
+    verifyOtpExpireAt: {
+        type: Number,
+        default: 0
+    },
+    isAccountVerified: {
+        type: Boolean,
+        default: false
+    },
+    resetOtp: {
+        type: String,
+        default: ''
+    },
+    resetOtpExpireAt: {
+        type: Number,
+        default: 0
     }
 },
     { timestamps: true }
@@ -35,10 +55,10 @@ UserSchema.pre('save', async function () {
 
 UserSchema.methods.createJWT = function () {
     return jwt.sign(
-        { userId: this._id, name: this.name, email: this.email },
+        { userId: this._id },
         process.env.JWT_SECRET,
         {
-            expiresIn: process.env.JWT_CODE_TIME
+            expiresIn: process.env.JWT_CODE_HALFTIME
         }
     );
 }

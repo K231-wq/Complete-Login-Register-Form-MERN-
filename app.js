@@ -1,19 +1,23 @@
 require('dotenv').config();
 require('express-async-errors');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
-const expres = require('express');
-const app = expres();
+const express = require('express');
+const app = express();
 
 const connectDB = require('./db/connect');
 const authenticationMiddleware = require('./middleware/Authentication');
 
-const UserControllerRoutes = require('./routes/User');
+const UserControllerRoutes = require('./routes/Auth');
 const PageControllerRoutes = require('./routes/page');
 
 const errorHandlerMiddleware = require('./middleware/error_handler');
 const notFoundMiddleware = require('./middleware/not-found');
 
-app.use(expres.json());
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({ credentials: true }));
 
 app.get('/', (req, res) => {
     res.status(200).json({ msg: "API IS WORKING" });
