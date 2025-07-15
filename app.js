@@ -9,8 +9,8 @@ const app = express();
 const connectDB = require('./db/connect');
 const authenticationMiddleware = require('./middleware/Authentication');
 
-const UserControllerRoutes = require('./routes/Auth');
-const PageControllerRoutes = require('./routes/page');
+const AuthControllerRoutes = require('./routes/Auth');
+const UserControllerRoutes = require('./routes/userRoutes');
 
 const errorHandlerMiddleware = require('./middleware/error_handler');
 const notFoundMiddleware = require('./middleware/not-found');
@@ -28,8 +28,8 @@ app.get('/', (req, res) => {
     res.status(200).json({ msg: "API IS WORKING" });
 });
 
-app.use("/api/v1/auth", UserControllerRoutes);
-app.use("/api/v1/page", authenticationMiddleware, PageControllerRoutes);
+app.use("/api/v1/auth", AuthControllerRoutes);
+app.use("/api/v1/user", UserControllerRoutes);
 
 app.use(errorHandlerMiddleware);
 app.use(notFoundMiddleware);

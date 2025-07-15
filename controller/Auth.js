@@ -47,6 +47,7 @@ const register = async (req, res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
     }
 }
+
 const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -80,6 +81,7 @@ const login = async (req, res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
     }
 }
+
 const logout = async (req, res) => {
     try {
         res.clearCookie('token', {
@@ -95,6 +97,7 @@ const logout = async (req, res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
     }
 }
+
 const sendVerifyOtp = async (req, res) => {
     try {
         const { userId } = req.body;
@@ -157,10 +160,113 @@ const verifyEmail = async (req, res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
     }
 }
+
+const isAuthenticated = async (req, res) => {
+    try {
+        return res.status(StatusCodes.OK).json({ success: true })
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
+    }
+}
+
+const sendResetOtp = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            success: false,
+            message: "Email is required"
+        });
+    }
+    try {
+        const user = await User.findOne({ email });
+        if (!email) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                message: "User is not found"
+            });
+        }
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+        user.resetOtp = otp;
+        user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
+
+        await user.save();
+
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: user.email,
+            subject: "Password Reset OTP",
+            text: `Your OTP for resetting your password is ${otp}. Use this OTP to proceed with resetting your password.`,
+        }
+        await transporter.sendMail(mailOptions);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: "OTP sent to your password"
+        })
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            success: false,
+            message: "Email, OTP and Password are required"
+        });
+    }
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                message: "User is not found"
+            });
+        }
+        if (user.resetOtp === "" || user.resetOtp !== otp) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                success: false,
+                message: "Invalid OTP!"
+            });
+        }
+        if (user.resetOtpExpireAt < Date.now()) {
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                success: false,
+                message: "OTP Expired!"
+            });
+        }
+
+        user.password = newPassword;
+
+        user.resetOtp = "";
+        user.resetOtpExpireAt = 0;
+
+        await user.save();
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Password has been reset successfully"
+        });
+
+    } catch (error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
 module.exports = {
     register,
     login,
     logout,
     sendVerifyOtp,
-    verifyEmail
+    verifyEmail,
+    isAuthenticated,
+    sendResetOtp,
+    resetPassword
 };
