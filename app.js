@@ -16,11 +16,13 @@ const errorHandlerMiddleware = require('./middleware/error_handler');
 const notFoundMiddleware = require('./middleware/not-found');
 
 const port = process.env.PORT || 8085;
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5173/'];
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: `http://localhost:${port}`,
+    //allowed frontend url
+    origin: allowedOrigins,
     credentials: true
 }));
 

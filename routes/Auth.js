@@ -17,7 +17,7 @@ routers.route('/login').post(login);
 routers.route('/logout').post(logout);
 routers.route('/send-verify-otp').post(userAuth, sendVerifyOtp);
 routers.route('/verify-otp').post(userAuth, verifyEmail);
-routers.route('/is-auth').post(userAuth, isAuthenticated);
+routers.route('/is-auth').get(userAuth, isAuthenticated);
 routers.route('/send-reset-otp').post(sendResetOtp);
 routers.route('/reset-password').post(resetPassword);
 

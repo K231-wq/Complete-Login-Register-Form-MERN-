@@ -4,6 +4,7 @@ const User = require('../models/User');
 const { BadRequestError, NotFoundError } = require('../errors');
 const { StatusCodes } = require('http-status-codes');
 const transporter = require('../config/nodemailer');
+const { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } = require('../config/emailTemplates');
 
 const register = async (req, res) => {
     const { name, email, password } = req.body;
@@ -122,7 +123,8 @@ const sendVerifyOtp = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: user.email,
             subject: "Account Verification OTP",
-            text: `Your OTP is ${otp}. Verify your account using this OTP.`,
+            // text: `Your OTP is ${otp}. Verify your account using this OTP.`,
+            html: EMAIL_VERIFY_TEMPLATE.replace("{{email}}", user.email).replace("{{otp}}", otp)
         }
         await transporter.sendMail(mailOptions);
 
@@ -172,7 +174,7 @@ const isAuthenticated = async (req, res) => {
 const sendResetOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) {
-        return res.status(StatusCodes.BAD_REQUEST).json({
+        return res.json({
             success: false,
             message: "Email is required"
         });
@@ -196,7 +198,8 @@ const sendResetOtp = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: user.email,
             subject: "Password Reset OTP",
-            text: `Your OTP for resetting your password is ${otp}. Use this OTP to proceed with resetting your password.`,
+            // text: `Your OTP for resetting your password is ${otp}. Use this OTP to proceed with resetting your password.`,
+            html: PASSWORD_RESET_TEMPLATE.replace("{{email}}", user.email).replace("{{otp}}", otp),
         }
         await transporter.sendMail(mailOptions);
         return res.status(StatusCodes.OK).json({
